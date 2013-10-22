@@ -74,14 +74,14 @@ resppath <-
 
 #compd.data <- read.csv(paste(resppath, "CompiledData/compileddata_08Sept2013.csv", sep = ""), header = T, sep = "\t")
 
-compd.data <- read.csv(paste(resppath, "CompiledData/compileddata09Sept2013.csv", sep = ""), header = T, sep = "\t")
+compd.data <- read.csv(paste(resppath, "CompiledData/compileddatawithweather.csv", sep = ""), header = T, sep = "\t")
 
 #counties <- read.csv(paste(resppath,
 #													 "GeographicData/CountySocioecon/CompiledSocioecCountyLevel_V2.csv",
 #													 sep = ""), sep = "\t", header = T)
 
 counties <- read.csv(paste(resppath,
-													 "GeographicData/CountySocioecon/CompiledSocioecCountyLevel_V3.csv",
+													 "GeographicData/CountySocioecon/CompiledSocioecCountyLevel_V4.csv",
 													 sep = ""), sep = ",", header = T)
 
 opi <- read.csv(paste(resppath,
@@ -132,16 +132,16 @@ compd.data$DOJSTEPSites <- compd.data$DOJSTEPDays <- rep(NA,
 																												 dim(compd.data)[1])
 compd.data$CoSTEPSites <- compd.data$CoSTEPHours <- rep(NA, dim(compd.data)[1])
 compd.data$CoSTEPDays <- compd.data$DOJPop <- rep(NA, dim(compd.data)[1])
-compd.data$TVPaid <- compd.data$TVEarned <- rep(NA, dim(comdp.data)[1])
+compd.data$TVPaid <- compd.data$TVEarned <- rep(NA, dim(compd.data)[1])
 compd.data$RadioPaid <- compd.data$RadioEarned <- rep(NA, dim(compd.data)[1])
 compd.data$CablePaid <- compd.data$CableEarned <- rep(NA, dim(compd.data)[1])
 compd.data$OnlinePaid <- compd.data$OnlineEarned <- rep(NA, dim(compd.data)[1])
 compd.data$TVCost <- compd.data$CableCost <- rep(NA, dim(compd.data)[1])
 compd.data$RadioCost <- compd.data$OnlineCost <- rep(NA, dim(compd.data)[1])
 compd.data$City <- compd.data$CityPop2010 <- rep(NA, dim(compd.data)[1])
-compd.data$BUMTExpend <- compd.data$DOJPop2010 <- rep(NA, dim(compd.data)[1])
+compd.data$BUMTExpend <- compd.data$DOJPop <- rep(NA, dim(compd.data)[1])
 compd.data$BUMTBudget <- compd.data$DOJDistrict <- rep(NA, dim(compd.data)[1])
-
+compd.data$CoArea.misq <- compd.data$DOJArea.misq <- rep(NA, dim(compd.data)[1])
 #-- errors at 69, 70, 310, 311, 515, 635, 755, 875, 1029, 1030, 1235, 1355
 #-- 1475, 1595, 1715, 1835, 1955, 2075
 to.remove <- c(69, 70, 309, 310, 311, 515, 635, 755, 875, 1029, 1030, 1235, 1355,
@@ -149,48 +149,51 @@ to.remove <- c(69, 70, 309, 310, 311, 515, 635, 755, 875, 1029, 1030, 1235, 1355
 to.use <- seq(1:dim(compd.data)[1])[-to.remove]
 
 for(i in to.use){
-#	sitespecs <- subset(sampling.dat, as.character(SiteName) ==
-#									 as.character(compd.data$Site[i]))
-#	compd.data$SiteNum[i] <- as.numeric(as.character(sitespecs$SiteNum))
-#	compd.data$SampDay[i] <- as.character(sitespecs$Day)
-#	compd.data$StartTime[i] <- as.numeric(as.character(sitespecs$StartTime))
-#	compd.data$Duration[i] <- as.numeric(as.character(sitespecs$Duration))
-#
+	sitespecs <- subset(sampling.dat, as.character(SiteName) ==
+									 as.character(compd.data$Site[i]))
+	compd.data$SiteNum[i] <- as.numeric(as.character(sitespecs$SiteNum))
+	compd.data$SampDay[i] <- as.character(sitespecs$Day)
+	compd.data$StartTime[i] <- as.numeric(as.character(sitespecs$StartTime))
+	compd.data$Duration[i] <- as.numeric(as.character(sitespecs$Duration))
+
 	matchspecs <- subset(match.list, SiteNo ==
 											 as.numeric(as.character(compd.data$SiteNum[i])))
 	compd.data$County[i] <- as.character(matchspecs$County)
-#	compd.data$SchDist[i] <- as.character(matchspecs$SchDist)
-#	compd.data$Tribe[i] <- as.character(matchspecs$Tribe)
-#
-#	cospecs <- subset(counties, as.character(County) ==
-#										as.character(compd.data$County[i]))
+	compd.data$SchDist[i] <- as.character(matchspecs$SchDist)
+	compd.data$Tribe[i] <- as.character(matchspecs$Tribe)
+
 	cospecs <- subset(counties, as.character(County) ==
 										as.character(compd.data$County[i]))
-#	compd.data$CoMedInc[i] <-
-#		as.numeric(as.character(cospecs$MedianHouseholdIncome))
-#	compd.data$Co2010Pop[i] <- as.numeric(as.character(cospecs$X2010Pop))
-#	compd.data$CoPercUnins[i] <- as.numeric(as.character(cospecs$NotInsured))
-#	compd.data$BUMTCoal[i] <- as.character(cospecs$BUMTCoalition)
+	cospecs <- subset(counties, as.character(County) ==
+										as.character(compd.data$County[i]))
+	compd.data$CoMedInc[i] <-
+		as.numeric(as.character(cospecs$MedianHouseholdIncome))
+	compd.data$Co2010Pop[i] <- as.numeric(as.character(cospecs$X2010Pop))
+	compd.data$CoPercUnins[i] <- as.numeric(as.character(cospecs$NotInsured))
+	compd.data$BUMTCoal[i] <- as.character(cospecs$BUMTCoalition)
 #	compd.data$STEPSites[i] <- as.numeric(as.character(cospecs$STEPSites))
 #	compd.data$STEPHours[i] <- as.numeric(as.character(cospecs$STEPHours))
 	compd.data$CoSTEPHours[i] <- as.numeric(as.character(cospecs$STEPHours))
 	compd.data$CoSTEPSites[i] <- as.numeric(as.character(cospecs$STEPSites))
 	compd.data$CoSTEPDays[i] <- as.numeric(as.character(cospecs$STEPDays))
 	compd.data$DOJDistrict[i] <- as.numeric(as.character(cospecs$DOJDistrict))
-
-#	distspecs <- subset(opi, as.character(District) ==
-#											as.character(compd.data$SchDist[i]) &
-#											as.numeric(as.character(Year)) ==
-#											as.numeric(as.character(compd.data$Year[i])))
-#	compd.data$StuElibigle[i] <-
-#		ifelse(dim(distspecs)[1] == 0, NA,
-#					 as.numeric(as.character(distspecs$StudentsEligible)))	
-#	compd.data$StuCompltd[i] <-  
-#		ifelse(dim(distspecs)[1] == 0, NA,
-#					 as.numeric(as.character(distspecs$StudentsCompleted)))	
-#	compd.data$AvgCostPerStu[i] <- 
-#		ifelse(dim(distspecs)[1] == 0, NA,
-#					 as.numeric(as.character(distspecs$AvgCostPerStu)))	
+	compd.data$DOJPop[i] <- as.numeric(as.character(cospecs$DistPop))
+	compd.data$DOJArea.misq[i] <- as.numeric(as.character(cospecs$DOJArea.mis))
+	compd.data$CoArea.misq[i] <- as.numeric(as.character(cospecs$CoArea.mis))
+	
+	distspecs <- subset(opi, as.character(District) ==
+											as.character(compd.data$SchDist[i]) &
+											as.numeric(as.character(Year)) ==
+											as.numeric(as.character(compd.data$Year[i])))
+	compd.data$StuElibigle[i] <-
+		ifelse(dim(distspecs)[1] == 0, NA,
+					 as.numeric(as.character(distspecs$StudentsEligible)))	
+	compd.data$StuCompltd[i] <-  
+		ifelse(dim(distspecs)[1] == 0, NA,
+					 as.numeric(as.character(distspecs$StudentsCompleted)))	
+	compd.data$AvgCostPerStu[i] <- 
+		ifelse(dim(distspecs)[1] == 0, NA,
+					 as.numeric(as.character(distspecs$AvgCostPerStu)))	
 
 	sitecitymatch <- subset(sitecity, as.character(Site) ==
 													as.character(compd.data$Site[i]))
@@ -252,4 +255,4 @@ for(i in to.use){
 #-- 1475, 1595, 1715, 1835, 1955, 2075
 
 write.csv(compd.data, paste(resppath,
-														"CompiledData/compileddata16Oct2013.csv", sep = ""))
+														"CompiledData/compileddata19Oct2013.csv", sep = ""))
