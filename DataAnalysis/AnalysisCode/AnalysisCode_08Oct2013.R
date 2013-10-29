@@ -253,12 +253,23 @@ mdt.interact.fit.noCoPop <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
 							 family = binomial( link = "logit"), data =
 							 tot.compd.data.complete)
 
+mdt.interact.fit.noSTEP <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
+								 TransformedPrecip + 
+									  factor(Year) +
+									Meantemp + CoMedInc.standardized +
+									Month + OPICompltRate:TotMediaCost +
+								 TotMediaCost + OPICompltRate +  
+								factor(BUMTCoal) + (1|County/Site),
+							 family = binomial( link = "logit"), data =
+							 tot.compd.data.complete)
+
 anova(mdt.interact.fit, mdt.interact.fit.noSTEPinter)
 anova(mdt.interact.fit.noSTEPinter, mdt.interact.fit.noOPIinter)
 anova(mdt.interact.fit.noSTEPinter, mdt.interact.fit.noCoPop)
+anova(mdt.interact.fit.noSTEPinter, mdt.interact.fit.noSTEP)
 
 #-- write reduced model coefficients to tex format using xtable --#
-reduced.fecoefs <- coef(summary(mdt.interact.fit.noSTEPinter))
+reduced.fecoefs <- coef(summary(mdt.interact.fit.noSTEP))
 tex.reducedfetab <- xtable(reduced.fecoefs, digits = 4)
 print(tex.reducedfetab, type = "latex", paste(write.path,
 																"Output/MDTReducedFitFECoefs_29Oct2013.txt",
