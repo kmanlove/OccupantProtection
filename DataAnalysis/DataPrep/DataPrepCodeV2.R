@@ -142,6 +142,7 @@ compd.data$City <- compd.data$CityPop2010 <- rep(NA, dim(compd.data)[1])
 compd.data$BUMTExpend <- compd.data$DOJPop <- rep(NA, dim(compd.data)[1])
 compd.data$BUMTBudget <- compd.data$DOJDistrict <- rep(NA, dim(compd.data)[1])
 compd.data$CoArea.misq <- compd.data$DOJArea.misq <- rep(NA, dim(compd.data)[1])
+compd.data$CityAreamisq <- rep(NA, dim(compd.data)[1])
 #-- errors at 69, 70, 310, 311, 515, 635, 755, 875, 1029, 1030, 1235, 1355
 #-- 1475, 1595, 1715, 1835, 1955, 2075
 to.remove <- c(69, 70, 309, 310, 311, 515, 635, 755, 875, 1029, 1030, 1235, 1355,
@@ -207,6 +208,8 @@ for(i in to.use){
 		as.numeric(as.character(sitecitymatch$STEPDays[1])))
 	compd.data$CityPop2010[i] <- ifelse(dim(sitecitymatch)[1] == 0, NA, 
 		as.numeric(as.character(sitecitymatch$CityPop2010[1])))
+	compd.data$CityAreamisq[i] <- ifelse(dim(sitecitymatch)[1] == 0, NA,
+																				as.numeric(as.character(sitecitymatch$Area[1])))
 
 	mediamatch <- subset(media.dat, as.character(City) ==
 											 as.character(compd.data$City[i]) & as.character(Year) ==
@@ -255,4 +258,4 @@ for(i in to.use){
 #-- 1475, 1595, 1715, 1835, 1955, 2075
 
 write.csv(compd.data, paste(resppath,
-														"CompiledData/compileddata19Oct2013.csv", sep = ""))
+														"CompiledData/compileddata29Oct2013.csv", sep = ""))

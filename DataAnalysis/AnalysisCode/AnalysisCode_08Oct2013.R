@@ -6,7 +6,7 @@ write.path <-
 	"~/work/Kezia/Research/Grants/MTDOT_OccupantProtection/Tasks/DataAnalysis/"
 
 #-- load in compiled data --#
-compd.data <- read.csv(paste(dat.path, "compileddata19Oct2013.csv", sep = ""), header = T)
+compd.data <- read.csv(paste(dat.path, "compileddata29Oct2013.csv", sep = ""), header = T)
 
 #-- call required packages --#
 require(lme4)
@@ -29,7 +29,9 @@ tot.compd.data$Year <- factor(tot.compd.data$Year)
 tot.compd.data$CitySTEPDaysRate <- ifelse(is.na(tot.compd.data$CitySTEPDays) ==
 																					T, 0, tot.compd.data$CitySTEPDays / tot.compd.data$CityPop2010)
 tot.compd.data$CitySTEPHoursRate <- ifelse(is.na(tot.compd.data$CitySTEPHours) ==
-																					T, 0, tot.compd.data$CitySTEPHours / tot.compd.data$CityPop2010)
+																					T, 0, tot.compd.data$CitySTEPHours /
+																					tot.compd.data$CityPop2010 /
+																					tot.compd.data$CityAreamisq)
 tot.compd.data$CitySTEPSitesRate <- ifelse(is.na(tot.compd.data$CitySTEPDays) ==
 																					T, 0, tot.compd.data$CitySTEPDays / tot.compd.data$CityPop2010)
 tot.compd.data$CoSTEPDaysRate <- ifelse(is.na(tot.compd.data$CoSTEPDays) ==
@@ -184,9 +186,80 @@ mdt.interact.fit <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
 							 tot.compd.data.complete)
 	#-- converges --#
 
-#-- write model coefficients to tex format using xtable --#
+#-- write saturated model coefficients to tex format using xtable --#
 interact.fecoefs <- coef(summary(mdt.interact.fit))
 tex.fetab <- xtable(interact.fecoefs, digits = 4)
 print(tex.fetab, type = "latex", paste(write.path,
-																"Output/MDTInteractFitFECoefs_22Oct2013.txt",
+																"Output/MDTInteractFitFECoefs_29Oct2013.txt",
+																sep = ""))
+
+#-- MODEL REDUCTION TRIALS --#
+#-- reduced model --#
+mdt.interact.fit.reduced <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
+								 TransformedPrecip + 
+									  factor(Year) +
+									Meantemp + Co2010Pop.standardized + CoMedInc.standardized +
+									Month + OPICompltRate + 
+								 TotMediaCost + 
+								 AggregateSTEPHoursRate + OPICompltRate:TotMediaCost +
+								factor(BUMTCoal) + (1|County/Site),
+							 family = binomial( link = "logit"), data =
+							 tot.compd.data.complete)
+
+#-- anova to test for interaction significance --#
+anova(mdt.interact.fit, mdt.interact.fit.reduced)
+
+mdt.interact.fit.noSTEPinter <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
+								 TransformedPrecip + 
+									  factor(Year) +
+									Meantemp + Co2010Pop.standardized + CoMedInc.standardized +
+									Month + 
+								 TotMediaCost + OPICompltRate +  
+								 AggregateSTEPHoursRate + OPICompltRate:TotMediaCost  +
+								factor(BUMTCoal) + (1|County/Site),
+							 family = binomial( link = "logit"), data =
+							 tot.compd.data.complete)
+
+mdt.interact.fit.noOPIinter <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
+								 TransformedPrecip + 
+									  factor(Year) +
+									Meantemp + Co2010Pop.standardized + CoMedInc.standardized +
+									Month + 
+								 TotMediaCost + OPICompltRate +  
+								 AggregateSTEPHoursRate + 
+								factor(BUMTCoal) + (1|County/Site),
+							 family = binomial( link = "logit"), data =
+							 tot.compd.data.complete)
+
+mdt.interact.fit.noOPI <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
+								 TransformedPrecip + 
+									  factor(Year) +
+									Meantemp + Co2010Pop.standardized + CoMedInc.standardized +
+									Month + 
+								 TotMediaCost +  
+								 AggregateSTEPHoursRate +
+								factor(BUMTCoal) + (1|County/Site),
+							 family = binomial( link = "logit"), data =
+							 tot.compd.data.complete)
+
+mdt.interact.fit.noCoPop <- glmer(cbind(Belted_Yes, Belted_No) ~ Stratum +
+								 TransformedPrecip + 
+									  factor(Year) +
+									Meantemp + CoMedInc.standardized +
+									Month + OPICompltRate:TotMediaCost +
+								 TotMediaCost + OPICompltRate +  
+								 AggregateSTEPHoursRate +
+								factor(BUMTCoal) + (1|County/Site),
+							 family = binomial( link = "logit"), data =
+							 tot.compd.data.complete)
+
+anova(mdt.interact.fit, mdt.interact.fit.noSTEPinter)
+anova(mdt.interact.fit.noSTEPinter, mdt.interact.fit.noOPIinter)
+anova(mdt.interact.fit.noSTEPinter, mdt.interact.fit.noCoPop)
+
+#-- write reduced model coefficients to tex format using xtable --#
+reduced.fecoefs <- coef(summary(mdt.interact.fit.noSTEPinter))
+tex.reducedfetab <- xtable(reduced.fecoefs, digits = 4)
+print(tex.reducedfetab, type = "latex", paste(write.path,
+																"Output/MDTReducedFitFECoefs_29Oct2013.txt",
 																sep = ""))
